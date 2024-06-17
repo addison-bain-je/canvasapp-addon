@@ -1,0 +1,19 @@
+Home_Screen_OLD As screen:
+    LoadingSpinner: =LoadingSpinner.Data
+    OnVisible: =
+
+    Label2 As label:
+        Height: =83
+        Size: =10
+        Text: |-
+            ="Feasibility Check
+            - Retrieve more than 2000 records from Dataverse table into SharePoint list
+            - Sync record fields from Dataverse to SP List
+            - Write editable fields from PowerApp/SharePoint back into Dataverse table
+            
+            "
+        Width: =486
+        X: =51
+        Y: =672
+        ZIndex: =15
+

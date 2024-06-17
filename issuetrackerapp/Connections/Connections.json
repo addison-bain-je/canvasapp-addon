@@ -1,0 +1,55 @@
+{
+  "6fdca60e-ed98-42ce-a64d-12136c5a76da": {
+    "appActions": [
+      "UserPhotoV2"
+    ],
+    "connectionRef": {
+      "apiTier": "Standard",
+      "displayName": "Office 365 Users",
+      "iconUri": "https://connectoricons-prod.azureedge.net/releases/v1.0.1672/1.0.1672.3545/office365users/icon.png",
+      "id": "/providers/microsoft.powerapps/apis/shared_office365users",
+      "parameterHints": {},
+      "parameterHintsV2": {}
+    },
+    "datasets": {},
+    "dataSources": [
+      "Office365Users"
+    ],
+    "dependencies": {},
+    "dependents": [],
+    "id": "6fdca60e-ed98-42ce-a64d-12136c5a76da"
+  },
+  "d02b86d2-7b33-4e5d-9921-84a17fccfcda": {
+    "appActions": [
+      "providers/PowerPlatform.Governance/Operations/Read",
+      "providers/PowerPlatform.Governance/Operations/Write"
+    ],
+    "connectionRef": {
+      "apiTier": "Standard",
+      "displayName": "SharePoint",
+      "iconUri": "https://connectoricons-prod.azureedge.net/releases/v1.0.1670/1.0.1670.3526/sharepointonline/icon.png",
+      "id": "/providers/microsoft.powerapps/apis/shared_sharepointonline",
+      "parameterHints": {},
+      "parameterHintsV2": {}
+    },
+    "datasets": {
+      "https://jehl.sharepoint.com/sites/WorkflowDevelopment-JE-IQ": {
+        "dataSources": {
+          "JE-IQ-Issues-Admin-TEST": {
+            "tableName": "1c9fabea-7649-4ed3-a3e8-8d835dfa3b46"
+          },
+          "JE-IQ-Issues-TEST": {
+            "tableName": "a0f511a8-e052-491a-a57c-66c1cb27d22b"
+          }
+        }
+      }
+    },
+    "dataSources": [
+      "JE-IQ-Issues-TEST",
+      "JE-IQ-Issues-Admin-TEST"
+    ],
+    "dependencies": {},
+    "dependents": [],
+    "id": "d02b86d2-7b33-4e5d-9921-84a17fccfcda"
+  }
+}

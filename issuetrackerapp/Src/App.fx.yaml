@@ -1,0 +1,57 @@
+App As appinfo:
+    BackEnabled: =false
+    OnStart: |-
+        =//Enable Loading Spinner
+        Set(VarLoadSpinner,true);
+        
+        Clear(FullIssuesCol);
+        
+        //Loop through SharePoint List
+        ForAll(
+            [
+                "0",
+                "2000",
+                "4000",
+                "6000",
+                "8000",
+                "10000",
+                "12000",
+                "14000",
+                "16000",
+                "18000",
+                "20000",
+                "22000",
+                "24000"
+            ],
+            Collect(
+                FullIssuesCol,
+                Filter(
+                    'JE-IQ-Issues-TEST',
+                    FolderSplit = Value
+                )
+            )
+        );
+        
+        //Default filter setting
+        Set(FilterSelection,"MyActiveIssues");
+        //Initialize form update mode
+        Set(UpdateMode,Blank());
+        
+        //Set user email
+        Set(VarUserEmail, Lower(User().Email));
+        
+        //TEST
+        //Set(VarUserEmail, "oliver.ch.ho@johnsonelectric.com");
+        
+        //Disable Loading Spinner
+        Set(VarLoadSpinner,false);
+    StartScreen: =Home_Screen
+    Theme: =PowerAppsTheme
+
+    Host As hostControl.DefaultHostControlVariant:
+        OnCancel: =false
+        OnEdit: =false
+        OnNew: =false
+        OnSave: =false
+        OnView: =false
+

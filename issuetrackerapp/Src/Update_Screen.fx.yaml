@@ -1,0 +1,1004 @@
+Update_Screen As screen:
+    BackgroundImage: ='vecteezy_abstract-background-gradient-abstract-modern-background_6429746'
+    Fill: =RGBA(255, 255, 255, 1)
+    ImagePosition: =ImagePosition.Fill
+    LoadingSpinner: =LoadingSpinner.Data
+    OnVisible: =
+
+    Label4_12 As label:
+        FontWeight: =FontWeight.Semibold
+        Text: ="Issue"
+        Width: =135
+        X: =964
+        Y: =592
+        ZIndex: =7
+
+    Label4_15 As label:
+        FontWeight: =FontWeight.Semibold
+        Text: ="Assigned To"
+        Width: =130
+        X: =711
+        Y: =259
+        ZIndex: =8
+
+    Label4_17 As label:
+        FontWeight: =FontWeight.Semibold
+        Text: ="Due Date"
+        Width: =130
+        X: =709
+        Y: =412
+        ZIndex: =9
+
+    TextInput1_8 As text:
+        Default: =SelectedRecord.AssignedTo_Name
+        DisabledColor: =RGBA(0, 0, 0, 1)
+        DisplayMode: =DisplayMode.View
+        Height: =41
+        PaddingLeft: =55
+        Size: =12
+        Width: =420
+        X: =840
+        Y: =263
+        ZIndex: =10
+
+    DatePicker_DueDate_Read As datepicker:
+        DefaultDate: =If(IsBlank(SelectedRecord.DueDate), Blank(),SelectedRecord.DueDate)
+        DisplayMode: =DisplayMode.View
+        InputTextPlaceholder: =If(IsBlank(Self.SelectedDate), "", Self.Format, Self.Language)
+        OnChange: =
+        Size: =12
+        Width: =201
+        X: =841
+        Y: =412
+        ZIndex: =11
+
+    Label_ProjName As label:
+        FontWeight: =FontWeight.Semibold
+        Size: =12
+        Text: ="Project Name"
+        Width: =151
+        X: =76
+        Y: =89
+        ZIndex: =12
+
+    TextInput_Resolution_Input As text:
+        BorderColor: =RGBA(109, 49, 162, 1)
+        Default: =If(!IsBlank(SelectedRecord.Resolution),SelectedRecord.Resolution, Blank())
+        DisplayMode: =If(UpdateMode="Edit",DisplayMode.Edit,DisplayMode.Disabled)
+        Height: =112
+        HintText: =If(UpdateMode="Edit","Enter issue resolution here",Blank())
+        MaxLength: =2000
+        Mode: =TextMode.MultiLine
+        PaddingLeft: =8
+        PaddingTop: =8
+        Size: =12
+        Width: =420
+        X: =839
+        Y: =566
+        ZIndex: =13
+
+    Label_Resolution As label:
+        Color: =If(UpdateMode="Edit",RGBA(151, 0, 0, 1),RGBA(0, 0, 0, 1))
+        FontWeight: =FontWeight.Semibold
+        Text: |-
+            =If(UpdateMode="Edit" And Dropdown_Status_Select.Selected.Value="Closed","Resolution *",
+                If(UpdateMode="Edit" And Dropdown_Status_Select.Selected.Value="Postponed","Resolution *","Resolution"))
+        Width: =130
+        X: =709
+        Y: =564
+        ZIndex: =14
+
+    Label_ProjMgr As label:
+        FontWeight: =FontWeight.Semibold
+        Height: =38
+        Size: =12
+        Text: ="Project Manager"
+        Width: =151
+        X: =76
+        Y: =160
+        ZIndex: =15
+
+    Label_Priority As label:
+        FontWeight: =FontWeight.Semibold
+        Text: ="Priority"
+        Width: =130
+        X: =712
+        Y: =311
+        ZIndex: =16
+
+    TextInput_Priority As text:
+        Default: =SelectedRecord.Priority
+        DisabledColor: =RGBA(0, 0, 0, 1)
+        DisplayMode: =DisplayMode.View
+        Size: =12
+        Width: =200
+        X: =842
+        Y: =310
+        ZIndex: =17
+
+    TextInput_ProjName As text:
+        Default: =SelectedRecord.ProjectName
+        DisabledColor: =RGBA(0, 0, 0, 1)
+        DisplayMode: =DisplayMode.View
+        Height: =65
+        Mode: =TextMode.MultiLine
+        Size: =12
+        Width: =420
+        X: =228
+        Y: =89
+        ZIndex: =18
+
+    Btn_Submit As button:
+        DisplayMode: |-
+            =If(Dropdown_Status_Select.Selected.Value="Closed" && Not(IsBlank(TextInput_Resolution_Input.Text)) && !IsBlank(DatePicker_FinishDate.SelectedDate),DisplayMode.Edit,
+                If(Dropdown_Status_Select.Selected.Value="Postponed" && Not(IsBlank(TextInput_Resolution_Input.Text)),DisplayMode.Edit,
+                    If(Dropdown_Status_Select.Selected.Value="Active", DisplayMode.Disabled, DisplayMode.Disabled)))
+        Height: =37
+        OnSelect: |
+            =Set(VarLoadSpinner,true);
+            
+            //Patch record to SP List
+            //Automated Flow will process the modified SP record and update Dataverse
+            Patch('JE-IQ-Issues-TEST', LookUp('JE-IQ-Issues-TEST', GUID=SelectedRecord.GUID),
+            {
+                Status: Dropdown_Status_Select.Selected.Value,
+                FinishDate: DatePicker_FinishDate.SelectedDate,
+                Resolution: TextInput_Resolution_Input.Text,
+                SyncFromSP: "Yes"
+            });
+            
+            //Refresh all data
+            Refresh('JE-IQ-Issues-TEST');
+            Clear(FullIssuesCol);
+            //Loop through SharePoint List
+            ForAll(
+                [
+                    "0",
+                    "2000",
+                    "4000",
+                    "6000",
+                    "8000",
+                    "10000",
+                    "12000",
+                    "14000",
+                    "16000",
+                    "18000",
+                    "20000",
+                    "22000",
+                    "24000"
+                ],
+                Collect(
+                    FullIssuesCol,
+                    Filter(
+                        'JE-IQ-Issues-TEST',
+                        FolderSplit = Value
+                    )
+                )
+            );
+            
+            //Default filter setting
+            Set(FilterSelection,"MyActiveIssues");
+            //Initialize form update mode
+            Set(UpdateMode,Blank());
+            Set(SelectedRecord, Blank());
+            
+            
+            //Notification Message
+            Set(VarLoadSpinner,false);
+            Notify("The record has been successfully saved", NotificationType.Success, 3000);
+            Navigate(Home_Screen);
+            
+            //Reset input controls
+            Reset(TextInput_Resolution_Input);
+            Reset(DatePicker_FinishDate);
+            Reset(Dropdown_Status_Select);
+        Size: =14
+        Text: ="Submit"
+        Visible: =If(UpdateMode="Edit",true,false)
+        X: =970
+        Y: =688
+        ZIndex: =19
+
+    TextInput_ProjMgr As text:
+        Default: =SelectedRecord.ProjectManager_Name
+        DisabledColor: =RGBA(0, 0, 0, 1)
+        DisplayMode: =DisplayMode.View
+        PaddingLeft: =55
+        Size: =12
+        Tooltip: =SelectedRecord.ProjectManager_Email
+        Width: =420
+        X: =228
+        Y: =163
+        ZIndex: =20
+
+    Lbl_Status As label:
+        Color: =If(UpdateMode="Edit",RGBA(151, 0, 0, 1),RGBA(0, 0, 0, 1))
+        FontWeight: =FontWeight.Semibold
+        Text: =If(UpdateMode="Edit","Status *","Status")
+        Width: =130
+        X: =709
+        Y: =464
+        ZIndex: =21
+
+    Dropdown_Status_Select As dropdown:
+        BorderColor: =RGBA(109, 49, 162, 1)
+        ChevronBackground: =RGBA(109, 49, 162, 1)
+        Default: =If(IsBlank(SelectedRecord.Status), Blank(),SelectedRecord.Status)
+        DisplayMode: =If(UpdateMode="Edit",DisplayMode.Edit,DisplayMode.Disabled)
+        Items: =["Active","Closed","Postponed"]
+        SelectionFill: =RGBA(109, 49, 162, 1)
+        Size: =12
+        Width: =202
+        X: =840
+        Y: =463
+        ZIndex: =22
+
+    Img_AssignedTo As image:
+        Height: =35
+        Image: =If(IsBlank(SelectedRecord.AssignedTo_Email), Icon.Person, Office365Users.UserPhotoV2(SelectedRecord.AssignedTo_Email))
+        RadiusBottomLeft: =50
+        RadiusBottomRight: =50
+        RadiusTopLeft: =50
+        RadiusTopRight: =50
+        Visible: =If(IsBlank(SelectedRecord.AssignedTo_Email), false, true)
+        Width: =35
+        X: =847
+        Y: =266
+        ZIndex: =23
+
+    Img_ProjMgr As image:
+        Height: =32
+        Image: =If(IsBlank(SelectedRecord.ProjectManager_Email), Icon.Person,Office365Users.UserPhotoV2(SelectedRecord.ProjectManager_Email))
+        RadiusBottomLeft: =50
+        RadiusBottomRight: =50
+        RadiusTopLeft: =50
+        RadiusTopRight: =50
+        Visible: =If(IsBlank(SelectedRecord.ProjectManager_Email), false, true)
+        Width: =32
+        X: =238
+        Y: =168
+        ZIndex: =24
+
+    Label_ProjMgr_1 As label:
+        FontWeight: =FontWeight.Semibold
+        Size: =12
+        Text: ="Project Code"
+        Width: =151
+        X: =76
+        Y: =212
+        ZIndex: =25
+
+    Label_ProjMgr_2 As label:
+        FontWeight: =FontWeight.Semibold
+        Size: =12
+        Text: ="Department"
+        Width: =151
+        X: =77
+        Y: =260
+        ZIndex: =26
+
+    Label_ProjMgr_3 As label:
+        FontWeight: =FontWeight.Semibold
+        Size: =12
+        Text: ="JE-PDS Stage"
+        Width: =151
+        X: =77
+        Y: =354
+        ZIndex: =27
+
+    Label_ProjMgr_4 As label:
+        FontWeight: =FontWeight.Semibold
+        Size: =12
+        Text: ="Customer"
+        Width: =151
+        X: =76
+        Y: =399
+        ZIndex: =28
+
+    TextInput_ProjName_1 As text:
+        Default: =SelectedRecord.ProjectCode
+        DisabledColor: =RGBA(0, 0, 0, 1)
+        DisplayMode: =DisplayMode.View
+        Height: =38
+        Size: =12
+        Width: =420
+        X: =228
+        Y: =213
+        ZIndex: =29
+
+    TextInput_ProjName_2 As text:
+        Default: =SelectedRecord.Department
+        DisabledColor: =RGBA(0, 0, 0, 1)
+        DisplayMode: =DisplayMode.View
+        Height: =38
+        Size: =12
+        Width: =420
+        X: =228
+        Y: =261
+        ZIndex: =30
+
+    TextInput_ProjName_3 As text:
+        Default: =SelectedRecord.PDS_Stage
+        DisabledColor: =RGBA(0, 0, 0, 1)
+        DisplayMode: =DisplayMode.View
+        Height: =38
+        Size: =12
+        Width: =420
+        X: =228
+        Y: =355
+        ZIndex: =31
+
+    TextInput_ProjName_4 As text:
+        Default: =SelectedRecord.Customer
+        DisabledColor: =RGBA(0, 0, 0, 1)
+        DisplayMode: =DisplayMode.View
+        Height: =38
+        Size: =12
+        Width: =420
+        X: =228
+        Y: =401
+        ZIndex: =32
+
+    Form_Hdr_Bar As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =32
+
+        Form_Rect_Hdr As rectangle:
+            Fill: =RGBA(109, 49, 162, 0.75)
+            Height: =69
+            Width: =1366
+            ZIndex: =2
+
+        Form_Hdr_Title As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            FontWeight: =FontWeight.Bold
+            Size: =20
+            Text: |-
+                ="Issue ID : "&SelectedRecord.IssueID
+            Width: =339
+            X: =513
+            Y: =14
+            ZIndex: =3
+
+        Form_Hdr_Icn As icon.GlobeWarning:
+            Color: =RGBA(255, 255, 255, 1)
+            Height: =48
+            Icon: =Icon.BackArrow
+            OnSelect: |-
+                =Navigate(Home_Screen);
+                Set(SelectedRecord, Blank());
+                Set(UpdateMode,Blank());
+                
+                Set(VarLoadSpinner,false);
+                
+                Reset(TextInput_Resolution_Input);
+                Reset(DatePicker_FinishDate);
+                Reset(Dropdown_Status_Select);
+            Width: =35
+            X: =51
+            Y: =10
+            ZIndex: =4
+
+        Form_Hdr_UserImg As image:
+            Height: =52
+            Image: =User().Image
+            RadiusBottomLeft: =50
+            RadiusBottomRight: =50
+            RadiusTopLeft: =50
+            RadiusTopRight: =50
+            Tooltip: =User().FullName
+            Width: =52
+            X: =1262
+            Y: =10
+            ZIndex: =5
+
+    Label_ProjName_7 As label:
+        FontWeight: =FontWeight.Semibold
+        Size: =12
+        Text: ="Issue Name"
+        Width: =130
+        X: =709
+        Y: =89
+        ZIndex: =75
+
+    TextInput_ProjName_5 As text:
+        Default: =SelectedRecord.IssueName
+        DisabledColor: =RGBA(0, 0, 0, 1)
+        DisplayMode: =DisplayMode.View
+        Height: =65
+        Mode: =TextMode.MultiLine
+        Size: =12
+        Width: =420
+        X: =841
+        Y: =89
+        ZIndex: =76
+
+    TextInput_Priority_1 As text:
+        Default: =SelectedRecord.Category
+        DisabledColor: =RGBA(0, 0, 0, 1)
+        DisplayMode: =DisplayMode.View
+        Size: =12
+        Width: =200
+        X: =842
+        Y: =359
+        ZIndex: =77
+
+    TextInput_Priority_2 As text:
+        Default: =If(!IsBlank(SelectedRecord.CustSubCategory), SelectedRecord.CustSubCategory, SelectedRecord.NonCustSubCategory)
+        DisabledColor: =RGBA(0, 0, 0, 1)
+        DisplayMode: =DisplayMode.View
+        Size: =12
+        Width: =200
+        X: =1059
+        Y: =360
+        ZIndex: =78
+
+    Label_Priority_1 As label:
+        FontWeight: =FontWeight.Semibold
+        Text: ="Category"
+        Width: =130
+        X: =712
+        Y: =359
+        ZIndex: =79
+
+    Label_Resolution_1 As label:
+        FontWeight: =FontWeight.Semibold
+        Text: ="Description"
+        Width: =111
+        X: =712
+        Y: =159
+        ZIndex: =80
+
+    TextInput_ProjName_6 As text:
+        Default: =SelectedRecord.Description
+        DisabledColor: =RGBA(0, 0, 0, 1)
+        DisplayMode: =DisplayMode.View
+        Height: =90
+        Mode: =TextMode.MultiLine
+        Size: =12
+        Width: =420
+        X: =840
+        Y: =162
+        ZIndex: =81
+
+    Lbl_Status_1 As label:
+        Color: =If(UpdateMode="Edit",RGBA(151, 0, 0, 1),RGBA(0, 0, 0, 1))
+        FontWeight: =FontWeight.Semibold
+        Text: |-
+            =If(UpdateMode="Edit" And Dropdown_Status_Select.Selected.Value="Closed" ,"Finish Date *",
+                If(UpdateMode="Edit" And Dropdown_Status_Select.Selected.Value="Postponed","Finish Date","Finish Date"))
+        Width: =130
+        X: =709
+        Y: =514
+        ZIndex: =82
+
+    DatePicker_FinishDate As datepicker:
+        BorderColor: =RGBA(109, 49, 162, 1)
+        DefaultDate: =If(IsBlank(SelectedRecord.FinishDate), Blank(),SelectedRecord.FinishDate)
+        DisabledBorderColor: =RGBA(202, 202, 202, 1)
+        DisplayMode: =If(UpdateMode="Edit",DisplayMode.Edit,DisplayMode.Disabled)
+        InputTextPlaceholder: =If(IsBlank(Self.SelectedDate), "", Self.Format, Self.Language)
+        OnChange: =
+        Size: =12
+        Width: =202
+        X: =840
+        Y: =514
+        ZIndex: =83
+
+    Label_ProjMgr_5 As label:
+        FontWeight: =FontWeight.Semibold
+        Size: =12
+        Text: ="Project Type"
+        Width: =151
+        X: =76
+        Y: =306
+        ZIndex: =85
+
+    TextInput_ProjName_7 As text:
+        Default: =SelectedRecord.ProjectType
+        DisabledColor: =RGBA(0, 0, 0, 1)
+        DisplayMode: =DisplayMode.View
+        Height: =38
+        Size: =12
+        Width: =420
+        X: =227
+        Y: =309
+        ZIndex: =86
+
+    Icn_ResetDatePicker_FinishDate As icon.CancelBadge:
+        Color: =RGBA(109, 49, 162, 1)
+        Height: =23
+        Icon: =Icon.CancelBadge
+        OnSelect: =Reset(DatePicker_FinishDate);
+        Visible: =If(UpdateMode="Edit",true,false)
+        Width: =23
+        X: =978
+        Y: =523
+        ZIndex: =87
+
+    Grp_TrackIndicators As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =87
+
+        Label_ProjName_1 As label:
+            FontWeight: =FontWeight.Semibold
+            Size: =11
+            Text: ="On Cost Tracker (DV)"
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =170
+            X: =57
+            Y: =450
+            ZIndex: =33
+
+        Rectangle5 As rectangle:
+            Fill: =If(SelectedRecord.OnCost_DV_Ind="On Cost", RGBA(187, 221, 140, 1), RGBA(202, 202, 202, 1))
+            Height: =37
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =140
+            X: =228
+            Y: =451
+            ZIndex: =34
+
+        Rectangle5_1 As rectangle:
+            Fill: =If(SelectedRecord.OnCost_DV_Ind="NOT On Cost", RGBA(203, 102, 102, 1), RGBA(202, 202, 202, 1))
+            Height: =37
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =140
+            X: =369
+            Y: =451
+            ZIndex: =35
+
+        Rectangle5_2 As rectangle:
+            Fill: =If(SelectedRecord.OnCost_DV_Ind="N/A", RGBA(136, 160, 209, 1), RGBA(202, 202, 202, 1))
+            Height: =37
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =140
+            X: =510
+            Y: =451
+            ZIndex: =36
+
+        Label7 As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            FontWeight: =FontWeight.Semibold
+            Size: =11
+            Text: ="On Cost "
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =83
+            X: =255
+            Y: =451
+            ZIndex: =37
+
+        Label7_1 As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            FontWeight: =FontWeight.Semibold
+            Size: =11
+            Text: ="NOT On Cost "
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =126
+            X: =377
+            Y: =451
+            ZIndex: =38
+
+        Label7_2 As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            FontWeight: =FontWeight.Semibold
+            Size: =11
+            Text: ="N/A"
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =81
+            X: =543
+            Y: =451
+            ZIndex: =39
+
+        Rectangle5_3 As rectangle:
+            Fill: =If(SelectedRecord.OnCost_PV_Ind="On Cost", RGBA(187, 221, 140, 1), RGBA(202, 202, 202, 1))
+            Height: =37
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =140
+            X: =229
+            Y: =497
+            ZIndex: =40
+
+        Rectangle5_4 As rectangle:
+            Fill: =If(SelectedRecord.OnCost_PV_Ind="NOT On Cost", RGBA(203, 102, 102, 1), RGBA(202, 202, 202, 1))
+            Height: =37
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =140
+            X: =370
+            Y: =497
+            ZIndex: =41
+
+        Rectangle5_5 As rectangle:
+            Fill: =If(SelectedRecord.OnCost_PV_Ind="N/A", RGBA(136, 160, 209, 1), RGBA(202, 202, 202, 1))
+            Height: =37
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =140
+            X: =511
+            Y: =497
+            ZIndex: =42
+
+        Label7_3 As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            FontWeight: =FontWeight.Semibold
+            Size: =11
+            Text: ="On Cost "
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =83
+            X: =256
+            Y: =497
+            ZIndex: =43
+
+        Label7_4 As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            FontWeight: =FontWeight.Semibold
+            Size: =11
+            Text: ="NOT On Cost "
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =126
+            X: =378
+            Y: =497
+            ZIndex: =44
+
+        Label7_5 As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            FontWeight: =FontWeight.Semibold
+            Size: =11
+            Text: ="N/A"
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =81
+            X: =544
+            Y: =497
+            ZIndex: =45
+
+        Rectangle5_6 As rectangle:
+            Fill: =If(SelectedRecord.OnCost_SOP_Ind="On Cost", RGBA(187, 221, 140, 1), RGBA(202, 202, 202, 1))
+            Height: =37
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =140
+            X: =230
+            Y: =546
+            ZIndex: =46
+
+        Rectangle5_7 As rectangle:
+            Fill: =If(SelectedRecord.OnCost_SOP_Ind="NOT On Cost", RGBA(203, 102, 102, 1), RGBA(202, 202, 202, 1))
+            Height: =37
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =140
+            X: =371
+            Y: =546
+            ZIndex: =47
+
+        Rectangle5_8 As rectangle:
+            Fill: =If(SelectedRecord.OnCost_SOP_Ind="N/A", RGBA(136, 160, 209, 1), RGBA(202, 202, 202, 1))
+            Height: =37
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =140
+            X: =512
+            Y: =546
+            ZIndex: =48
+
+        Label7_6 As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            FontWeight: =FontWeight.Semibold
+            Size: =11
+            Text: ="On Cost "
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =83
+            X: =257
+            Y: =546
+            ZIndex: =49
+
+        Label7_7 As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            FontWeight: =FontWeight.Semibold
+            Size: =11
+            Text: ="NOT On Cost "
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =126
+            X: =379
+            Y: =546
+            ZIndex: =50
+
+        Label7_8 As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            FontWeight: =FontWeight.Semibold
+            Size: =11
+            Text: ="N/A"
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =81
+            X: =545
+            Y: =546
+            ZIndex: =51
+
+        Rectangle5_9 As rectangle:
+            Fill: =If(SelectedRecord.OnTime_DV_Ind="On Time", RGBA(187, 221, 140, 1), RGBA(202, 202, 202, 1))
+            Height: =37
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =140
+            X: =229
+            Y: =593
+            ZIndex: =52
+
+        Rectangle5_10 As rectangle:
+            Fill: =If(SelectedRecord.OnTime_DV_Ind="NOT On Time", RGBA(203, 102, 102, 1), RGBA(202, 202, 202, 1))
+            Height: =37
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =140
+            X: =370
+            Y: =593
+            ZIndex: =53
+
+        Rectangle5_11 As rectangle:
+            Fill: =If(SelectedRecord.OnTime_DV_Ind="N/A", RGBA(136, 160, 209, 1), RGBA(202, 202, 202, 1))
+            Height: =37
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =140
+            X: =511
+            Y: =593
+            ZIndex: =54
+
+        Label7_9 As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            FontWeight: =FontWeight.Semibold
+            Size: =11
+            Text: ="On Time "
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =83
+            X: =256
+            Y: =593
+            ZIndex: =55
+
+        Label7_10 As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            FontWeight: =FontWeight.Semibold
+            Size: =11
+            Text: ="NOT On Time"
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =126
+            X: =378
+            Y: =593
+            ZIndex: =56
+
+        Label7_11 As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            FontWeight: =FontWeight.Semibold
+            Size: =11
+            Text: ="N/A"
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =81
+            X: =544
+            Y: =593
+            ZIndex: =57
+
+        Label_ProjName_2 As label:
+            FontWeight: =FontWeight.Semibold
+            Size: =11
+            Text: ="On Cost Tracker (PV)"
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =170
+            X: =61
+            Y: =495
+            ZIndex: =58
+
+        Label_ProjName_3 As label:
+            FontWeight: =FontWeight.Semibold
+            Size: =11
+            Text: ="On Cost Tracker (SOP)"
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =170
+            X: =58
+            Y: =548
+            ZIndex: =59
+
+        Label_ProjName_4 As label:
+            FontWeight: =FontWeight.Semibold
+            Size: =11
+            Text: ="On Time Tracker (DV)"
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =170
+            X: =60
+            Y: =595
+            ZIndex: =60
+
+        Label_ProjName_5 As label:
+            FontWeight: =FontWeight.Semibold
+            Size: =11
+            Text: ="On Time Tracker (PV)"
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =170
+            X: =61
+            Y: =641
+            ZIndex: =61
+
+        Label_ProjName_6 As label:
+            FontWeight: =FontWeight.Semibold
+            Size: =11
+            Text: ="On Time Tracker (SOP)"
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =170
+            X: =60
+            Y: =686
+            ZIndex: =62
+
+        Rectangle5_12 As rectangle:
+            Fill: =If(SelectedRecord.OnTime_PV_Ind="On Time", RGBA(187, 221, 140, 1), RGBA(202, 202, 202, 1))
+            Height: =37
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =140
+            X: =229
+            Y: =641
+            ZIndex: =63
+
+        Rectangle5_13 As rectangle:
+            Fill: =If(SelectedRecord.OnTime_PV_Ind="NOT On Time", RGBA(203, 102, 102, 1), RGBA(202, 202, 202, 1))
+            Height: =37
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =140
+            X: =370
+            Y: =641
+            ZIndex: =64
+
+        Rectangle5_14 As rectangle:
+            Fill: =If(SelectedRecord.OnTime_PV_Ind="N/A", RGBA(136, 160, 209, 1), RGBA(202, 202, 202, 1))
+            Height: =37
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =140
+            X: =511
+            Y: =641
+            ZIndex: =65
+
+        Label7_12 As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            FontWeight: =FontWeight.Semibold
+            Size: =11
+            Text: ="On Time"
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =83
+            X: =256
+            Y: =641
+            ZIndex: =66
+
+        Label7_13 As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            FontWeight: =FontWeight.Semibold
+            Size: =11
+            Text: ="NOT On Time "
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =126
+            X: =378
+            Y: =641
+            ZIndex: =67
+
+        Label7_14 As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            FontWeight: =FontWeight.Semibold
+            Size: =11
+            Text: ="N/A"
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =81
+            X: =544
+            Y: =641
+            ZIndex: =68
+
+        Rectangle5_15 As rectangle:
+            Fill: =If(SelectedRecord.OnTime_SOP_Ind="On Time", RGBA(187, 221, 140, 1), RGBA(202, 202, 202, 1))
+            Height: =37
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =140
+            X: =229
+            Y: =688
+            ZIndex: =69
+
+        Rectangle5_16 As rectangle:
+            Fill: =If(SelectedRecord.OnTime_SOP_Ind="NOT On Time", RGBA(203, 102, 102, 1), RGBA(202, 202, 202, 1))
+            Height: =37
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =140
+            X: =370
+            Y: =688
+            ZIndex: =70
+
+        Rectangle5_17 As rectangle:
+            Fill: =If(SelectedRecord.OnTime_SOP_Ind="N/A", RGBA(136, 160, 209, 1), RGBA(202, 202, 202, 1))
+            Height: =37
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =140
+            X: =511
+            Y: =688
+            ZIndex: =71
+
+        Label7_15 As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            FontWeight: =FontWeight.Semibold
+            Size: =11
+            Text: ="On Time"
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =83
+            X: =256
+            Y: =688
+            ZIndex: =72
+
+        Label7_16 As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            FontWeight: =FontWeight.Semibold
+            Size: =11
+            Text: ="NOT On Time "
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =126
+            X: =378
+            Y: =688
+            ZIndex: =73
+
+        Label7_17 As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            FontWeight: =FontWeight.Semibold
+            Size: =11
+            Text: ="N/A"
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =81
+            X: =544
+            Y: =688
+            ZIndex: =74
+
+        Rectangle1 As rectangle:
+            BorderColor: =RGBA(109, 49, 162, 1)
+            BorderThickness: =1
+            Fill: =RGBA(0, 0, 0, 0)
+            Height: =274
+            Visible: =If(StartsWith(SelectedRecord.ProjectType,"L Type") Or StartsWith(SelectedRecord.ProjectType,"M Type") Or StartsWith(SelectedRecord.ProjectType,"H Type") Or StartsWith(SelectedRecord.ProjectType,"C Type"),true, false)
+            Width: =423
+            X: =229
+            Y: =451
+            ZIndex: =84
+
+    Img_Update_LoadingSpinner As image:
+        Image: ='Spinner-1s-200px'
+        Visible: =If(VarLoadSpinner,true,false)
+        X: =624
+        Y: =336
+        ZIndex: =88
+
+    Label4_18 As label:
+        FontWeight: =FontWeight.Semibold
+        Text: ="Created"
+        Width: =80
+        X: =1059
+        Y: =411
+        ZIndex: =89
+
+    DatePicker_DueDate_Read_1 As datepicker:
+        DefaultDate: =If(IsBlank(SelectedRecord.Issue_Creation_Date), Blank(),SelectedRecord.Issue_Creation_Date)
+        DisplayMode: =DisplayMode.View
+        InputTextPlaceholder: =If(IsBlank(Self.SelectedDate), "", Self.Format, Self.Language)
+        OnChange: =
+        Size: =12
+        Width: =121
+        X: =1139
+        Y: =412
+        ZIndex: =90
+

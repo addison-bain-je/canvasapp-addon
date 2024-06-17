@@ -1,0 +1,891 @@
+Home_Screen As screen:
+    BackgroundImage: ='vecteezy_abstract-background-gradient-abstract-modern-background_6429746'
+    ImagePosition: =ImagePosition.Stretch
+    OnVisible: =
+
+    Rect_BG_1 As rectangle:
+        Fill: =RGBA(202, 202, 202, 0.7)
+        Height: =768
+        Width: =1366
+        ZIndex: =1
+
+    Home_Gal_RowCount As label:
+        Align: =Align.Right
+        Height: =32
+        Size: =11
+        Text: |-
+            ="Total Issues Displayed : "&Home_Gal_Issues.AllItemsCount
+        Width: =231
+        X: =1085
+        Y: =699
+        ZIndex: =7
+
+    "Home_Gal_Issues As gallery.'BrowseLayout_Vertical_TwoTextOneImageVariant_ver5.0'":
+        '#CopilotOverlayLabel': ="Filtered"
+        BorderColor: =RGBA(109, 49, 162, 1)
+        BorderThickness: =1
+        DelayItemLoading: =true
+        Height: =493
+        Items: |-
+            =Switch(FilterSelection,
+            "MyActiveIssues",
+            SortByColumns(Search(Filter(FullIssuesCol, TrimEnds(Lower(AssignedTo_Email))=TrimEnds(VarUserEmail) And Status="Active"),TextInput_Gal_Search.Text,IssueID,ProjectCode,Priority,ProjectManager_Name,IssueName,CustSubCategory,Description,ProjectName),"DueDate",If(SortDescending1, SortOrder.Descending, SortOrder.Ascending)),
+            "MyClosedIssues",
+            SortByColumns(Search(Filter(FullIssuesCol, TrimEnds(Lower(AssignedTo_Email))=TrimEnds(VarUserEmail) And Status="Closed"),TextInput_Gal_Search.Text,IssueID,ProjectCode,Priority,ProjectManager_Name,IssueName,CustSubCategory,Description,ProjectName,Customer,Department,PDS_Stage),"DueDate",If(SortDescending1, SortOrder.Descending, SortOrder.Ascending)),
+            "MyPostponedIssues",
+            SortByColumns(Search(Filter(FullIssuesCol, TrimEnds(Lower(AssignedTo_Email))=TrimEnds(VarUserEmail) And Status="Postponed"),TextInput_Gal_Search.Text,IssueID,ProjectCode,Priority,ProjectManager_Name,IssueName,CustSubCategory,Description,ProjectName,Customer,Department,PDS_Stage),"DueDate",If(SortDescending1, SortOrder.Descending, SortOrder.Ascending)),
+            "AllActiveIssues",
+            SortByColumns(Search(Filter(FullIssuesCol, Status="Active"),TextInput_Gal_Search.Text,IssueID,ProjectCode,Priority,ProjectManager_Name,IssueName,CustSubCategory,Description,ProjectName,Customer,Department,PDS_Stage),"DueDate",If(SortDescending1, SortOrder.Descending, SortOrder.Ascending)),
+            "AllClosedIssues",
+            SortByColumns(Search(Filter(FullIssuesCol, Status="Closed"),TextInput_Gal_Search.Text,IssueID,ProjectCode,Priority,ProjectManager_Name,IssueName,CustSubCategory,Description,ProjectName,Customer,Department,PDS_Stage),"DueDate",If(SortDescending1, SortOrder.Descending, SortOrder.Ascending)),
+            "AllPostponedIssues",
+            SortByColumns(Search(Filter(FullIssuesCol, Status="Postponed"),TextInput_Gal_Search.Text,IssueID,ProjectCode,Priority,ProjectManager_Name,IssueName,CustSubCategory,Description,ProjectName,Customer,Department,PDS_Stage),"DueDate",If(SortDescending1, SortOrder.Descending, SortOrder.Ascending)),
+            "AllIssues",
+            SortByColumns(Search(FullIssuesCol,TextInput_Gal_Search.Text,IssueID,ProjectCode,Priority,ProjectManager_Name,IssueName,CustSubCategory,Description,ProjectName,Customer,Department,PDS_Stage),"DueDate",If(SortDescending1, SortOrder.Descending, SortOrder.Ascending)),
+            
+            SortByColumns(Search(Filter(FullIssuesCol, TrimEnds(Lower(AssignedTo_Email))=TrimEnds(VarUserEmail)),TextInput_Gal_Search.Text,ProjectManager_Name,IssueName,CustSubCategory,Description,ProjectName,Customer,Department,PDS_Stage),"DueDate",If(SortDescending1, SortOrder.Descending, SortOrder.Ascending))
+            )
+            
+            //"IssueID","ProjectCode","Priority","ProjectManager_Name"
+            //AllIssues
+            //AllActiveIssues
+            //AllClosedIssues
+            //AllPostponedIssues
+            //MyActiveIssues
+            //MyClosedIssues
+            //MyPostponedIssues
+        Layout: =Layout.Vertical
+        LoadingSpinner: =LoadingSpinner.Data
+        TemplatePadding: =0
+        TemplateSize: =70
+        Width: =1296
+        X: =30
+        Y: =188
+        ZIndex: =8
+
+        Lbl_Gal_IssuerName As label:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(71, 69, 64, 1)
+            DisabledColor: =RGBA(186, 186, 186, 1)
+            FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+            Height: =50
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =8
+            Text: =ThisItem.IssueName
+            Width: =161
+            X: =461
+            Y: =10
+            ZIndex: =2
+
+        Lbl_Gal_AssignedToName As label:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(71, 69, 64, 1)
+            DisabledColor: =RGBA(186, 186, 186, 1)
+            FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+            Height: =30
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =8
+            Text: =ThisItem.AssignedTo_Name
+            Tooltip: =Lower(ThisItem.AssignedTo_Email)
+            Width: =110
+            X: =641
+            Y: =20
+            ZIndex: =3
+
+        NextArrow_Gal_Issue As icon.ChevronRight:
+            AccessibleLabel: =Self.Tooltip
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(109, 49, 162, 1)
+            DisabledBorderColor: =RGBA(56, 56, 56, 1)
+            DisabledColor: =RGBA(119, 119, 119, 1)
+            Height: =50
+            Icon: =If(TrimEnds(Lower(ThisItem.AssignedTo_Email))=TrimEnds(VarUserEmail) And ThisItem.Status="Active", Icon.Edit, Icon.View)
+            OnSelect: |-
+                =Set(SelectedRecord, ThisItem);
+                
+                If(TrimEnds(Lower(ThisItem.AssignedTo_Email))=TrimEnds(VarUserEmail) And ThisItem.Status="Active",
+                    Set(UpdateMode,"Edit"),
+                    Set(UpdateMode,"View"));
+                    
+                Navigate(Update_Screen);
+            PaddingBottom: =16
+            PaddingLeft: =16
+            PaddingRight: =16
+            PaddingTop: =16
+            Tooltip: ="View item details"
+            Width: =50
+            X: =1233
+            Y: =(Parent.TemplateHeight / 2) - (Self.Height / 2)
+            ZIndex: =4
+
+        Separator_Gal_Issue As rectangle:
+            BorderColor: =RGBA(0, 0, 255, 1)
+            Fill: =RGBA(109, 49, 162, 0.5)
+            Height: =2
+            OnSelect: =Select(Parent)
+            Width: =Parent.TemplateWidth
+            Y: =Parent.TemplateHeight - Self.Height
+            ZIndex: =5
+
+        Rect_Select_Gal_Issue As rectangle:
+            Fill: =RGBA(109, 49, 162, 1)
+            Height: =Parent.TemplateHeight - Separator_Gal_Issue.Height
+            OnSelect: =Select(Parent)
+            Visible: =ThisItem.IsSelected
+            Width: =4
+            ZIndex: =6
+
+        Lbl_Gal_IssueID As label:
+            AutoHeight: =true
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(71, 69, 64, 1)
+            DisabledColor: =RGBA(186, 186, 186, 1)
+            FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+            Height: =23
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =8
+            Text: =ThisItem.IssueID
+            VerticalAlign: =VerticalAlign.Top
+            Width: =45
+            X: =13
+            Y: =29
+            ZIndex: =7
+
+        Lbl_Gal_DueDate As label:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(71, 69, 64, 1)
+            DisabledColor: =RGBA(186, 186, 186, 1)
+            Fill: |-
+                =If(ThisItem.Status="Active" And ThisItem.DueDate < Today() And !IsBlank(ThisItem.DueDate),RGBA(251, 188, 159, 0.7),RGBA(0,0,0,0))
+                //Orange
+                //RGBA(251, 188, 159, 1)
+            FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+            Height: =23
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =8
+            Text: =ThisItem.DueDate
+            Width: =70
+            X: =875
+            Y: =22
+            ZIndex: =8
+
+        Lbl_Gal_Priority As label:
+            AutoHeight: =true
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(71, 69, 64, 1)
+            DisabledColor: =RGBA(186, 186, 186, 1)
+            FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+            Height: =18
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =8
+            Text: =ThisItem.Priority
+            Width: =60
+            X: =982
+            Y: =28
+            ZIndex: =9
+
+        "'Lbl_Gal_Category&Sub' As label":
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(71, 69, 64, 1)
+            DisabledColor: =RGBA(186, 186, 186, 1)
+            FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+            Height: =49
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =8
+            Text: |-
+                =ThisItem.Category&
+                If(!IsBlank(ThisItem.CustSubCategory)," - 
+                "&ThisItem.CustSubCategory,
+                    If(!IsBlank(ThisItem.NonCustSubCategory)," - 
+                    "&ThisItem.NonCustSubCategory,""))
+            Width: =134
+            X: =1040
+            Y: =10
+            ZIndex: =10
+
+        Lbl_Gal_Status As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(71, 69, 64, 1)
+            DisabledColor: =RGBA(186, 186, 186, 1)
+            FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+            Height: =14
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =8
+            Text: =ThisItem.Status
+            Width: =60
+            X: =1178
+            Y: =29
+            ZIndex: =11
+
+        Lbl_Gal_ProjectName As label:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(71, 69, 64, 1)
+            DisabledColor: =RGBA(186, 186, 186, 1)
+            FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+            Height: =55
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =8
+            Text: =ThisItem.ProjectName
+            Width: =146
+            X: =182
+            Y: =8
+            ZIndex: =12
+
+        Icn_Gal_Priority As icon.ArrowUp:
+            Color: =RGBA(0, 0, 0, 1)
+            Height: =13
+            Icon: |-
+                =Switch(ThisItem.Priority,
+                "High", Icon.ArrowUp,
+                "Medium", Icon.ArrowRight,
+                "Low", Icon.ArrowDown,
+                Blank())
+            OnSelect: =Select(Parent)
+            Width: =13
+            X: =963
+            Y: =28
+            ZIndex: =13
+
+        Icn_Gal_DueDate As icon.Warning:
+            Color: =RGBA(246, 88, 16, 1)
+            Height: =18
+            Icon: =Icon.Warning
+            OnSelect: =Select(Parent)
+            Visible: =If(ThisItem.Status="Active" And ThisItem.DueDate < Today() And !IsBlank(ThisItem.DueDate), true, false)
+            Width: =18
+            X: =854
+            Y: =24
+            ZIndex: =14
+
+        Lbl_Gal_Department As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(71, 69, 64, 1)
+            DisabledColor: =RGBA(186, 186, 186, 1)
+            FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+            Height: =50
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =8
+            Text: =ThisItem.Department
+            Width: =35
+            X: =53
+            Y: =10
+            ZIndex: =15
+
+        Lbl_Gal_ProjectCode As label:
+            Align: =Align.Center
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(71, 69, 64, 1)
+            DisabledColor: =RGBA(186, 186, 186, 1)
+            FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+            Height: =50
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =8
+            Text: =ThisItem.ProjectCode
+            Width: =70
+            X: =96
+            Y: =10
+            ZIndex: =16
+
+        Lbl_Gal_ProjectMgr_Name As label:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(71, 69, 64, 1)
+            DisabledColor: =RGBA(186, 186, 186, 1)
+            FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+            Height: =24
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =8
+            Text: =ThisItem.ProjectManager_Name
+            Width: =110
+            X: =336
+            Y: =23
+            ZIndex: =17
+
+        Lbl_Gal_IssuerName_1 As label:
+            BorderColor: =RGBA(0, 0, 0, 1)
+            Color: =RGBA(71, 69, 64, 1)
+            DisabledColor: =RGBA(186, 186, 186, 1)
+            FontWeight: =If(ThisItem.IsSelected, FontWeight.Semibold, FontWeight.Normal)
+            Height: =50
+            OnSelect: =Select(Parent)
+            PaddingBottom: =0
+            PaddingLeft: =0
+            PaddingRight: =0
+            PaddingTop: =0
+            Size: =8
+            Text: =Text(ThisItem.Issue_Creation_Date,"mm/dd/yyyy")
+            Width: =69
+            X: =769
+            Y: =9
+            ZIndex: =18
+
+    Btn_Filter_My As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =24
+
+        Btn_Filter_Gal_MyActive As button:
+            DisplayMode: =If(FilterSelection="AllActiveIsses",DisplayMode.Disabled,DisplayMode.Edit)
+            Fill: |-
+                =If(FilterSelection="MyActiveIssues", RGBA(109, 49, 162, 1), RGBA(149, 149, 149, 1))
+                //Purple
+                //RGBA(109, 49, 162, 1)
+                //Grey
+                //RGBA(149, 149, 149, 1)
+            OnSelect: =Set(FilterSelection,"MyActiveIssues");
+            RadiusBottomLeft: =15
+            RadiusBottomRight: =15
+            RadiusTopLeft: =15
+            RadiusTopRight: =15
+            Size: =11
+            Text: ="My Active Issues"
+            Tooltip: ="See Active issues assigned to me"
+            Width: =178
+            X: =31
+            Y: =81
+            ZIndex: =13
+
+        Btn_Filter_Gal_MyClosed As button:
+            DisplayMode: =If(FilterSelection="AllActiveIsses",DisplayMode.Disabled,DisplayMode.Edit)
+            Fill: |-
+                =If(FilterSelection="MyClosedIssues", RGBA(109, 49, 162, 1), RGBA(149, 149, 149, 1))
+                //Purple
+                //RGBA(109, 49, 162, 1)
+                //Grey
+                //RGBA(149, 149, 149, 1)
+            OnSelect: =Set(FilterSelection,"MyClosedIssues");
+            RadiusBottomLeft: =15
+            RadiusBottomRight: =15
+            RadiusTopLeft: =15
+            RadiusTopRight: =15
+            Size: =11
+            Text: ="My Closed Issues"
+            Tooltip: ="See Closed issues assigned to me"
+            Width: =178
+            X: =224
+            Y: =81
+            ZIndex: =14
+
+        Btn_Filter_Gal_MyPostponed As button:
+            DisplayMode: =If(FilterSelection="AllActiveIsses",DisplayMode.Disabled,DisplayMode.Edit)
+            Fill: |-
+                =If(FilterSelection="MyPostponedIssues", RGBA(109, 49, 162, 1), RGBA(149, 149, 149, 1))
+                //Purple
+                //RGBA(109, 49, 162, 1)
+                //Grey
+                //RGBA(149, 149, 149, 1)
+            OnSelect: =Set(FilterSelection,"MyPostponedIssues");
+            RadiusBottomLeft: =15
+            RadiusBottomRight: =15
+            RadiusTopLeft: =15
+            RadiusTopRight: =15
+            Size: =11
+            Text: ="My Postponed Issues"
+            Tooltip: ="See Postponed issues assigned to me"
+            Width: =178
+            X: =417
+            Y: =81
+            ZIndex: =28
+
+    Btn_Filter_All As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =24
+
+        Btn_Filter_Gal_AllClosed As button:
+            DisplayMode: =If(FilterSelection="AllActiveIsses",DisplayMode.Disabled,DisplayMode.Edit)
+            Fill: |-
+                =If(FilterSelection="AllClosedIssues", RGBA(109, 49, 162, 1), RGBA(149, 149, 149, 1))
+                //Purple
+                //RGBA(109, 49, 162, 1)
+                //Grey
+                //RGBA(149, 149, 149, 1)
+            Height: =32
+            OnSelect: =Set(FilterSelection,"AllClosedIssues");
+            RadiusBottomLeft: =15
+            RadiusBottomRight: =15
+            RadiusTopLeft: =15
+            RadiusTopRight: =15
+            Size: =10
+            Text: ="All Closed"
+            Tooltip: ="Admin - See all Closed issues"
+            Visible: |-
+                =//true
+                If(!IsBlank(LookUp('JE-IQ-Issues-Admin-TEST', Lower(Title) = Lower(User().Email) && Active)),true,false)
+            Width: =132
+            X: =328
+            Y: =699
+            ZIndex: =9
+
+        Btn_Filter_Gal_All As button:
+            DisplayMode: =If(FilterSelection="AllActiveIsses",DisplayMode.Disabled,DisplayMode.Edit)
+            Fill: |-
+                =If(FilterSelection="AllIssues", RGBA(109, 49, 162, 1), RGBA(149, 149, 149, 1))
+                //Purple
+                //RGBA(109, 49, 162, 1)
+                //Grey
+                //RGBA(149, 149, 149, 1)
+            Height: =32
+            OnSelect: =Set(FilterSelection,"AllIssues");
+            RadiusBottomLeft: =15
+            RadiusBottomRight: =15
+            RadiusTopLeft: =15
+            RadiusTopRight: =15
+            Size: =10
+            Text: ="See All"
+            Tooltip: ="Admin - See all issues"
+            Visible: |-
+                =//true
+                If(!IsBlank(LookUp('JE-IQ-Issues-Admin-TEST', Lower(Title) = Lower(User().Email) && Active)),true,false)
+            Width: =132
+            X: =30
+            Y: =699
+            ZIndex: =10
+
+        Btn_Filter_Gal_AllPostponed As button:
+            DisplayMode: =If(FilterSelection="AllActiveIsses",DisplayMode.Disabled,DisplayMode.Edit)
+            Fill: |-
+                =If(FilterSelection="AllPostponedIssues", RGBA(109, 49, 162, 1), RGBA(149, 149, 149, 1))
+                //Purple
+                //RGBA(109, 49, 162, 1)
+                //Grey
+                //RGBA(149, 149, 149, 1)
+            Height: =32
+            OnSelect: =Set(FilterSelection,"AllPostponedIssues");
+            RadiusBottomLeft: =15
+            RadiusBottomRight: =15
+            RadiusTopLeft: =15
+            RadiusTopRight: =15
+            Size: =10
+            Text: ="All Postponed"
+            Tooltip: ="Admin - See all Postponed issues"
+            Visible: |-
+                =//true
+                If(!IsBlank(LookUp('JE-IQ-Issues-Admin-TEST', Lower(Title) = Lower(User().Email) && Active)),true,false)
+            Width: =132
+            X: =479
+            Y: =699
+            ZIndex: =11
+
+        Btn_Filter_Gal_AllActive As button:
+            DisplayMode: =If(FilterSelection="AllActiveIsses",DisplayMode.Disabled,DisplayMode.Edit)
+            Fill: |-
+                =If(FilterSelection="AllActiveIssues", RGBA(109, 49, 162, 1), RGBA(149, 149, 149, 1))
+                //Purple
+                //RGBA(109, 49, 162, 1)
+                //Grey
+                //RGBA(149, 149, 149, 1)
+            Height: =32
+            OnSelect: =Set(FilterSelection,"AllActiveIssues");
+            RadiusBottomLeft: =15
+            RadiusBottomRight: =15
+            RadiusTopLeft: =15
+            RadiusTopRight: =15
+            Size: =10
+            Text: ="All Active"
+            Tooltip: ="Admin - See all Active issues"
+            Visible: |-
+                =//true
+                If(!IsBlank(LookUp('JE-IQ-Issues-Admin-TEST', Lower(Title) = Lower(User().Email) && Active)),true,false)
+            Width: =132
+            X: =178
+            Y: =699
+            ZIndex: =12
+
+    TextInput_Gal_Search As text:
+        BorderColor: =RGBA(109, 49, 162, 1)
+        Clear: =true
+        Default: =""
+        Height: =37
+        HintText: |-
+            ="Search with keywords - hover to see tips"
+            //"Search by Issue ID, Project Code, Manager or Priority"
+        PaddingLeft: =32
+        RadiusBottomLeft: =15
+        RadiusBottomRight: =15
+        RadiusTopLeft: =15
+        RadiusTopRight: =15
+        Size: =10
+        Tooltip: ="Search by id, issue name, description, project name, project manager, customer, priority or category"
+        Width: =380
+        X: =938
+        Y: =84
+        ZIndex: =29
+
+    Icn_SearchGal As icon.Search:
+        Color: =RGBA(0, 0, 0, 1)
+        DisplayMode: =DisplayMode.View
+        Height: =20
+        Icon: =Icon.Search
+        Width: =20
+        X: =945
+        Y: =92
+        ZIndex: =30
+
+    Grp_Home_Hdr_Bar As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =30
+
+        Home_Rect_Hdr As rectangle:
+            Fill: =RGBA(109, 49, 162, 0.75)
+            Height: =69
+            Width: =1366
+            ZIndex: =2
+
+        Home_Hdr_Title As label:
+            Align: =Align.Center
+            Color: =RGBA(255, 255, 255, 1)
+            FontWeight: =FontWeight.Bold
+            Size: =20
+            Text: ="JE-IQ Issues Tracker App"
+            Width: =339
+            X: =513
+            Y: =14
+            ZIndex: =3
+
+        Home_Hdr_Icn As icon.GlobeWarning:
+            Color: =RGBA(255, 255, 255, 1)
+            Height: =48
+            Icon: =Icon.Reload
+            OnSelect: |-
+                =//Enable Loading Spinner
+                Set(VarLoadSpinner,true);
+                
+                Refresh('JE-IQ-Issues-TEST');
+                Refresh('JE-IQ-Issues-Admin-TEST');
+                Clear(FullIssuesCol);
+                
+                //Loop through SharePoint List
+                ForAll(
+                    [
+                        "0",
+                        "2000",
+                        "4000",
+                        "6000",
+                        "8000",
+                        "10000",
+                        "12000",
+                        "14000",
+                        "16000",
+                        "18000",
+                        "20000",
+                        "22000",
+                        "24000"
+                    ],
+                    Collect(
+                        FullIssuesCol,
+                        Filter(
+                            'JE-IQ-Issues-TEST',
+                            FolderSplit = Value
+                        )
+                    )
+                );
+                
+                //Default filter setting
+                Set(FilterSelection,"MyActiveIssues");
+                //Initialize form update mode
+                Set(UpdateMode,Blank());
+                
+                //Disable LoadingSpinner
+                Set(VarLoadSpinner,false);
+            Width: =35
+            X: =44
+            Y: =10
+            ZIndex: =4
+
+        Home_Hdr_UserImg As image:
+            Height: =52
+            Image: =User().Image
+            RadiusBottomLeft: =50
+            RadiusBottomRight: =50
+            RadiusTopLeft: =50
+            RadiusTopRight: =50
+            Tooltip: =User().FullName
+            Width: =52
+            X: =1262
+            Y: =10
+            ZIndex: =5
+
+        Lbl_Home_SystemAdmin As label:
+            Align: =Align.Right
+            Color: =RGBA(255, 255, 255, 1)
+            Height: =22
+            Size: =8
+            Text: ="System Admin"
+            Visible: |-
+                =If(!IsBlank(LookUp('JE-IQ-Issues-Admin-TEST', Lower(Title) = Lower(User().Email) && Active)),true,false)
+                //true
+            Width: =99
+            X: =1155
+            Y: =25
+            ZIndex: =6
+
+    Icn_OpenHelp As icon.Help:
+        Color: =RGBA(255, 255, 255, 1)
+        Height: =30
+        Icon: =Icon.Help
+        OnSelect: |-
+            =(UpdateContext({ displayHelp: true }))
+        Width: =30
+        X: =1325
+        Y: =21
+        ZIndex: =31
+
+    Container_Help As groupContainer.manualLayoutContainer:
+        Fill: =RGBA(202, 202, 202, 0.75)
+        Height: =768
+        Visible: =displayHelp
+        Width: =1366
+        ZIndex: =32
+
+        Img_AppIntro As image:
+            Height: =614
+            Image: =ApplicationIntro
+            Width: =1300
+            X: =25
+            Y: =70
+            ZIndex: =2
+
+        Icn_CloseHelp As icon.Cancel:
+            Color: =RGBA(109, 49, 162, 1)
+            Height: =38
+            Icon: =Icon.Cancel
+            OnSelect: |-
+                =UpdateContext( { displayHelp: false } )
+            Width: =36
+            X: =1174
+            Y: =76
+            ZIndex: =3
+
+        Grp_UserGuide_URL As group:
+            Height: =5
+            Width: =5
+            X: =40
+            Y: =40
+            ZIndex: =6
+
+            Icn_UserGuideURL As icon.Link:
+                Color: =RGBA(246, 88, 16, 1)
+                Height: =29
+                Icon: =Icon.Link
+                OnSelect: |-
+                    =Launch("https://jehl.sharepoint.com/:b:/s/WorkflowDevelopment-JE-IQ-PROD/EQHegjLyBnpCh8pnm6soq1UBnmrLAbaYhAk4dSQ-yc5WXg?e=oyzu2o")
+                Width: =23
+                X: =317
+                Y: =75
+                ZIndex: =4
+
+            "'Lb l_UserGuideURL' As label":
+                Align: =Align.Right
+                Color: =RGBA(246, 88, 16, 1)
+                FontWeight: =FontWeight.Semibold
+                Height: =16
+                OnSelect: |-
+                    =Launch("https://jehl.sharepoint.com/:b:/s/WorkflowDevelopment-JE-IQ-PROD/EQHegjLyBnpCh8pnm6soq1UBnmrLAbaYhAk4dSQ-yc5WXg?e=oyzu2o")
+                Size: =10
+                Text: ="Click here for User Guide"
+                Width: =175
+                X: =136
+                Y: =82
+                ZIndex: =5
+
+    Grp_Lbl_Gal_Hdr As group:
+        Height: =5
+        Width: =5
+        X: =40
+        Y: =40
+        ZIndex: =32
+
+        Icn_Sort_Gal_DueDate As icon.ArrowsUpDown:
+            Color: =RGBA(0, 0, 0, 1)
+            Height: =29
+            Icon: =Icon.Sort
+            OnSelect: |-
+                =UpdateContext({SortDescending1: !SortDescending1})
+            Tooltip: =If(SortDescending1,"Latest to Earliest","Earliest to Latest")
+            Width: =20
+            X: =885
+            Y: =145
+            ZIndex: =15
+
+        Hdr_Department As label:
+            FontWeight: =FontWeight.Semibold
+            Height: =31
+            Size: =9
+            Text: ="Dept"
+            Width: =53
+            X: =78
+            Y: =146
+            ZIndex: =16
+
+        Hdr_ProjectCode As label:
+            FontWeight: =FontWeight.Semibold
+            Height: =31
+            Size: =9
+            Text: ="Project Code"
+            Width: =95
+            X: =121
+            Y: =146
+            ZIndex: =17
+
+        Hdr_IssueID As label:
+            FontWeight: =FontWeight.Semibold
+            Height: =31
+            Size: =9
+            Text: ="ID"
+            Width: =26
+            X: =43
+            Y: =146
+            ZIndex: =18
+
+        Hdr_IssueName As label:
+            FontWeight: =FontWeight.Semibold
+            Height: =31
+            Size: =9
+            Text: ="Issue Name"
+            Width: =106
+            X: =489
+            Y: =146
+            ZIndex: =19
+
+        Hdr_AssignedToName As label:
+            FontWeight: =FontWeight.Semibold
+            Height: =31
+            Size: =9
+            Text: ="Assigned To"
+            Width: =100
+            X: =668
+            Y: =146
+            ZIndex: =20
+
+        Hdr_DueDate As label:
+            FontWeight: =FontWeight.Semibold
+            Height: =30
+            Size: =9
+            Text: ="Due Date"
+            Width: =66
+            X: =907
+            Y: =147
+            ZIndex: =21
+
+        Hdr_Priority As label:
+            AutoHeight: =true
+            FontWeight: =FontWeight.Semibold
+            Height: =26
+            Size: =9
+            Text: ="Priority"
+            Width: =84
+            X: =990
+            Y: =149
+            ZIndex: =22
+
+        Hdr_Category As label:
+            FontWeight: =FontWeight.Semibold
+            Height: =31
+            Size: =9
+            Text: ="Category"
+            Width: =75
+            X: =1104
+            Y: =145
+            ZIndex: =23
+
+        Hdr_Status As label:
+            Align: =Align.Center
+            FontWeight: =FontWeight.Semibold
+            Height: =31
+            Size: =9
+            Text: ="Status"
+            Width: =71
+            X: =1200
+            Y: =145
+            ZIndex: =24
+
+        Hdr_ProjectName As label:
+            FontWeight: =FontWeight.Semibold
+            Height: =31
+            Size: =9
+            Text: ="Project Name"
+            Width: =100
+            X: =208
+            Y: =146
+            ZIndex: =25
+
+        Hdr_ProjectMgrName As label:
+            FontWeight: =FontWeight.Semibold
+            Height: =31
+            Size: =9
+            Text: ="Project Manager"
+            Width: =110
+            X: =362
+            Y: =146
+            ZIndex: =26
+
+        Hdr_CreatedDate As label:
+            FontWeight: =FontWeight.Semibold
+            Height: =30
+            Size: =9
+            Text: ="Created On"
+            Width: =80
+            X: =791
+            Y: =146
+            ZIndex: =27
+
+    Img_Home_LoadingSpinner As image:
+        Image: ='Spinner-1s-200px'
+        Visible: =If(VarLoadSpinner,true,false)
+        X: =624
+        Y: =336
+        ZIndex: =33
+
